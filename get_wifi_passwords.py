@@ -15,12 +15,21 @@ def extract_wifi_passwords():
                 f.writelines(f'Логин: {profile}\n')
                 profile_info = subprocess.check_output(f'netsh wlan show profile {profile} key=clear').decode('cp866').split('\n')
                 try:
-                    password = [i.split(':')[1].strip() for i in profile_info if 'Key Content' in i][0]
-                    f.write(f'Пароль: {password}\n\n')
+                    password = []
+                    for i in profile_info:
+                        if 'Key Content' in i:
+                            password.append(i.split(':')[1].strip())
+                        elif 'Содержимое ключа' in i:
+                            password.append(i.split(':')[1].strip())
+                    f.write(f'Пароль: {password[0]}\n\n')
                 except IndexError:
                     password = None
-                    f.write('Пароль: None \n\n')
-                print(f'Profile: {profile}\nPassword: {password}\n\n')
+                    f.write('Нет пароля\n\n')
+                    
+                if password is not None:
+                    print(f'Profile: {profile}\nPassword: {password[0]}\n\n')
+                else:
+                    print(f'Profile: {profile}\nPassword: \n\n')
                 
     print("ALL DATA SAVED IN FILE wifi_passwords.txt")
         
